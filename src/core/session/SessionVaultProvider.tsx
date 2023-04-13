@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { BrowserVault, DeviceSecurityType, Vault, VaultType } from '@ionic-enterprise/identity-vault';
+import { BrowserVault, Device, DeviceSecurityType, Vault, VaultType } from '@ionic-enterprise/identity-vault';
 import createVault from '../vault-factory';
 import { Session } from '../models';
 import { useIonModal } from '@ionic/react';
@@ -123,34 +123,19 @@ export const SessionVaultProvider: React.FC = ({ children }) => {
     console.log('updating config');
 
     try {
+      await Device.showBiometricPrompt({
+        androidBiometricsPromptTitle: 'Prompt Title',
+        androidBiometricsPromptDescription: 'prompt description',
+        androidBiometricsPromptSubtitle: 'prompt subtitle',
+        androidBiometricsNegativeButtonText: 'negative button text',
+      });
+      console.log('showBiometricPrompt has been executed');
+
       await vault.updateConfig({ ...vault.config, type, deviceSecurityType });
-    } catch (e) {
-      console.log('error updating config', e);
-      await vault.clear();
 
-      const newVault = createVault({
-        key: 'io.ionic.teataster.session_version2',
-        type: VaultType.SecureStorage,
-        deviceSecurityType: DeviceSecurityType.None,
-        lockAfterBackgrounded: 5000,
-        shouldClearVaultAfterTooManyFailedAttempts: true,
-        customPasscodeInvalidUnlockAttempts: 2,
-        unlockVaultOnLoad: false,
-      });
-
-      sleep(5000);
-
-      console.log('updating new config to system passcode');
-      await newVault.updateConfig({
-        ...newVault.config,
-        type: VaultType.DeviceSecurity,
-        deviceSecurityType: DeviceSecurityType.SystemPasscode,
-      });
-      console.log('finished updating new config to system passcode ');
-
-      console.log('new config', newVault.config);
-
-      throw new Error('error updating config');
+      console.log('config has been updated');
+    } catch (err) {
+      console.log(err);
     }
   };
 
