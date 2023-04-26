@@ -2,9 +2,9 @@ import { Redirect } from 'react-router';
 import { useSession } from './useSession';
 
 export const PrivateRoute = ({ children }: any) => {
-  const { session } = useSession();
+  const { user } = useSession();
 
-  if (!session) {
+  if (!user) {
     return <Redirect to="/login" />;
   }
 
